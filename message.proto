@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+package ParamServer;
+
+message ParamRequest 
+{
+  repeated int32 feature_id = 1;
+}
+
+message ParamResponse
+{
+  map<int32, float> param_map = 1;
+}
+
+message GradientRequest
+{
+  map<int32, float> gradient_map = 1;
+}
