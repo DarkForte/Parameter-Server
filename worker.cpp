@@ -47,7 +47,7 @@ void Worker::LoadFile(std::string file_name, std::string label_name)
 		}
 	}
 
-	x.print();
+	//x.print();
 	return;
 }
 
@@ -86,12 +86,9 @@ void Worker::Train()
 			req.add_feature_id(feature_id);
 		}
 
-		cout << req.feature_id_size()<<" = size before" << endl;
-
 		string out;
 		req.SerializeToString(&out);
-		cout << out.length() << endl;
-		MPI_Send(out.c_str(), out.length(), MPI_CHAR, server_num, static_cast<int>(MessageType::PARAM_REQUEST), MPI_COMM_WORLD);
+		MPI_Send(out.data(), out.size(), MPI_CHAR, server_num, static_cast<int>(MessageType::PARAM_REQUEST), MPI_COMM_WORLD);
 	}
 
 	int received_params = 0;
@@ -100,13 +97,14 @@ void Worker::Train()
 		char buf[MAX_LENGTH];
 		MPI_Status status;
 		MPI_Recv(buf, MAX_LENGTH, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+		int length;
+		MPI_Get_count(&status, MPI_CHAR, &length);
 		
 		MessageType msg_type = static_cast<MessageType>(status.MPI_TAG);
 		if (msg_type == MessageType::PARAM_RESPONSE)
 		{
-			string in(buf);
 			ParamServer::ParamResponse param_response;
-			param_response.ParseFromString(in);
+			param_response.ParseFromArray(buf, length);
 
 			cout << "Worker get response: " << endl;
 			for (auto entry : param_response.param_map())

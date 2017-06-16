@@ -11,6 +11,7 @@ class Server
 protected:
 	int server_id;
 	int total_servers;
+	int total_params;
 	std::vector<float> params;
 
 public:
