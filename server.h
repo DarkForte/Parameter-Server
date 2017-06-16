@@ -5,6 +5,13 @@
 
 #include "message.pb.h"
 #include "constants.h"
+#include "mpi_helper.h"
+
+using std::cout;
+using std::vector;
+using std::map;
+using std::endl;
+using std::string;
 
 class Server
 {

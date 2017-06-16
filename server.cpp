@@ -1,6 +1,10 @@
 #include "server.h"
 #include "message_type.h"
 
+using std::cout;
+using std::vector;
+using std::string;
+
 Server::Server(int server_id, int total_servers)
 {
 	this->server_id = server_id;
@@ -18,7 +22,7 @@ void Server::Run()
 	int param_start = total_params / total_servers * (server_id-1);
 	int param_num = total_params / total_servers;
 
-	std::cout << "Total params: " << total_params << std::endl;
+	cout << "Total params: " << total_params << endl;
 
 	params.resize(param_num);
 	for (int i = 0; i < params.size(); i++)
@@ -26,17 +30,13 @@ void Server::Run()
 
 	while (true)
 	{
-		MPI_Status message_status;
-		/*MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &message_status);
-		*/
-
 		char buf[MAX_LENGTH];
-		MPI_Recv(buf, MAX_LENGTH, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &message_status);
-		int length;
-		MPI_Get_count(&message_status, MPI_CHAR, &length);
+
+		MPIMsgDescriptor descriptor = MPIRecvLite(buf, MPI_ANY_TAG, MPI_ANY_SOURCE);
 		
-		MessageType message_type = static_cast<MessageType>(message_status.MPI_TAG);
-		int source = message_status.MPI_SOURCE;
+		MessageType message_type = descriptor.type;
+		int source = descriptor.source;
+		int length = descriptor.length;
 
 		if (message_type == MessageType::PARAM_REQUEST)
 		{
@@ -57,9 +57,6 @@ void Server::Run()
 
 void Server::HandleParamRequest(ParamServer::ParamRequest req, int source)
 {
-	using std::map;
-	using std::string;
-
 	int size = req.feature_id_size();
 	map<int, float> param_map;
 
@@ -70,7 +67,6 @@ void Server::HandleParamRequest(ParamServer::ParamRequest req, int source)
 		int now_feature_id = req.feature_id(i);
 		int local_feature_id = ToLocalFeatureID(now_feature_id);
 
-		std::cout << "now feature id: " << now_feature_id << std::endl;
 		param_map[now_feature_id] = params[local_feature_id];
 	}
 
@@ -78,12 +74,11 @@ void Server::HandleParamRequest(ParamServer::ParamRequest req, int source)
 	auto& response_param_map = *response.mutable_param_map();
 	for (auto entry : param_map)
 	{
-		std::cout << entry.first << " " << entry.second << std::endl;
+		cout << entry.first << " " << entry.second << endl;
 		response_param_map[entry.first] = entry.second;
 	}
-	string out;
-	response.SerializeToString(&out);
-	MPI_Send(out.data(), out.size(), MPI_CHAR, source, static_cast<int>(MessageType::PARAM_RESPONSE), MPI_COMM_WORLD);
+	
+	MPISendLite(response, source, MessageType::PARAM_RESPONSE);
 	return;
 }
 

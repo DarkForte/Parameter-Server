@@ -53,11 +53,6 @@ void Worker::LoadFile(std::string file_name, std::string label_name)
 
 void Worker::Train()
 {
-	using std::vector;
-	using std::string;
-	using std::cout;
-	using std::endl;
-
 	vector<vector<int>> feature_requests(server_count+1);
 	int request_sum = 0;
 
@@ -71,10 +66,6 @@ void Worker::Train()
 		}
 	}
 
-	cout << "Feature request for server #1: " << endl;
-	for (auto i : feature_requests[1])
-		cout << i << " " << endl;
-
 	for (int server_num = 1; server_num < feature_requests.size(); server_num++)
 	{
 		if (feature_requests[server_num].empty())
@@ -86,21 +77,22 @@ void Worker::Train()
 			req.add_feature_id(feature_id);
 		}
 
-		string out;
+		/*string out;
 		req.SerializeToString(&out);
 		MPI_Send(out.data(), out.size(), MPI_CHAR, server_num, static_cast<int>(MessageType::PARAM_REQUEST), MPI_COMM_WORLD);
+		*/
+		MPISendLite(req, server_num, MessageType::PARAM_REQUEST);
 	}
 
 	int received_params = 0;
+	map<int, float> param_map;
 	while (received_params < request_sum)
 	{
 		char buf[MAX_LENGTH];
-		MPI_Status status;
-		MPI_Recv(buf, MAX_LENGTH, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-		int length;
-		MPI_Get_count(&status, MPI_CHAR, &length);
-		
-		MessageType msg_type = static_cast<MessageType>(status.MPI_TAG);
+		MPIMsgDescriptor descriptor = MPIRecvLite(buf, MPI_ANY_TAG, MPI_ANY_SOURCE);
+		MessageType msg_type = descriptor.type;
+		int length = descriptor.length;
+
 		if (msg_type == MessageType::PARAM_RESPONSE)
 		{
 			ParamServer::ParamResponse param_response;
@@ -110,9 +102,26 @@ void Worker::Train()
 			for (auto entry : param_response.param_map())
 			{
 				cout << entry.first << " " << entry.second << endl;
+				param_map[entry.first] = entry.second;
 			}
 			received_params += param_response.param_map_size();
 		}
 	}
+
+	map<int, float> gradient_map = CalcGradient(param_map);
+
+	ParamServer::GradientRequest gradient_req;
+	auto &send_gradient_map = *gradient_req.mutable_gradient_map();
+	for (auto entry : gradient_map)
+	{
+		send_gradient_map[entry.first] = entry.second;
+	}
+
 	return;
+}
+
+map<int, float> Worker::CalcGradient(map<int, float> param_map)
+{
+	map<int, float> ret;
+	return ret;
 }
