@@ -15,7 +15,6 @@ void Scheduler::Run()
 	std::ifstream fin(path + filename + ".meta");
 	fin >> feature_count;
 
-	std::cout << "Input feature count:" << feature_count << std::endl;
 
 	int i;
 	for (i = 1; i <= server_count; i++)

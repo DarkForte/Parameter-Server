@@ -17,9 +17,8 @@ using std::endl;
 class Worker
 {
 protected:
-	const std::string path = "/mnt/f/Parameter-Server/";
 	Matrix x;
-	vector<float> y;
+	vector<int> y;
 	int feature_num;
 	int server_count;
 
@@ -28,5 +27,10 @@ public:
 	void LoadFile(std::string data_name, std::string label_name = "");
 	void Train();
 	void Test();
+
+protected:
 	map<int, float> CalcGradient(map<int, float> param_map);
+	map<int, float> RequestParams();
+	void SendGradientMap(map<int, float> gradient_map);
+	int FindWhichServer(int feature_num);
 };

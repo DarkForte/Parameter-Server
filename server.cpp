@@ -1,33 +1,40 @@
 #include "server.h"
 #include "message_type.h"
+#include <fstream>
 
 using std::cout;
 using std::vector;
 using std::string;
 
-Server::Server(int server_id, int total_servers)
+Server::Server(int server_id, int total_servers, string filename)
 {
 	this->server_id = server_id;
 	this->total_servers = total_servers;
+	this->filename = filename;
 }
 
 void Server::Run()
 {
-	using namespace std;
-	std::cout << "Server running" << std::endl;
+	cout << "Server running" << endl;
 
-	//Hear from the scheduler the total number of params
-	MPI_Recv(&total_params, 1, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	std::ifstream fin(path + filename + ".meta");
+	fin >> total_params;
 
-	int param_start = total_params / total_servers * (server_id-1);
-	int param_num = total_params / total_servers;
+	int param_with_bias = total_params + 1;
+
+	int param_num = (param_with_bias - server_id - 1) / total_servers + 1;
 
 	cout << "Total params: " << total_params << endl;
 
 	params.resize(param_num);
 	for (int i = 0; i < params.size(); i++)
-		params[i] = float(rand()) / RAND_MAX;
-
+		params[i] = float(rand()) / RAND_MAX * 2 - 1;
+	
+	/*
+	params[0] = 0.2;
+	params[1] = 0.2;
+	params[2] = -24;
+	*/
 	while (true)
 	{
 		char buf[MAX_LENGTH];
@@ -40,16 +47,16 @@ void Server::Run()
 
 		if (message_type == MessageType::PARAM_REQUEST)
 		{
-			cout << "Received param request" << endl;
+			//cout << "Received param request" << endl;
 			ParamServer::ParamRequest param_request;
 			param_request.ParseFromArray(buf, length);
 			HandleParamRequest(param_request, source);
 		}
 		else if (message_type == MessageType::GRADIENT_REQUEST)
 		{
-			string in(buf);
+			//cout << "Received gradient request" << endl;
 			ParamServer::GradientRequest gradient_request;
-			gradient_request.ParseFromString(in);
+			gradient_request.ParseFromArray(buf, length);
 			HandleGradientRequest(gradient_request, source);
 		}
 	}
@@ -59,8 +66,6 @@ void Server::HandleParamRequest(ParamServer::ParamRequest req, int source)
 {
 	int size = req.feature_id_size();
 	map<int, float> param_map;
-
-	std::cout << "size: "<< size << std::endl;
 
 	for (int i = 0; i < size; i++)
 	{
@@ -74,7 +79,7 @@ void Server::HandleParamRequest(ParamServer::ParamRequest req, int source)
 	auto& response_param_map = *response.mutable_param_map();
 	for (auto entry : param_map)
 	{
-		cout << entry.first << " " << entry.second << endl;
+		//cout << entry.first << " " << entry.second << endl;
 		response_param_map[entry.first] = entry.second;
 	}
 	
@@ -84,11 +89,16 @@ void Server::HandleParamRequest(ParamServer::ParamRequest req, int source)
 
 void Server::HandleGradientRequest(ParamServer::GradientRequest req, int source)
 {
+	for (auto entry : req.gradient_map())
+	{
+		//cout << entry.first << " " << entry.second << endl;
 
+		int local_id = ToLocalFeatureID(entry.first);
+		params[local_id] -= learning_rate * entry.second;
+	}
 }
 
 int Server::ToLocalFeatureID(int global_feature_id)
 {
-	int num_per_server = total_params / total_servers;
-	return global_feature_id % num_per_server;
+	return (global_feature_id - server_id) / total_servers;
 }

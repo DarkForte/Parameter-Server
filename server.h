@@ -19,10 +19,12 @@ protected:
 	int server_id;
 	int total_servers;
 	int total_params;
-	std::vector<float> params;
+	string filename;
+	vector<float> params;
+	float learning_rate = 0.001;
 
 public:
-	Server(int server_id, int total_servers);
+	Server(int server_id, int total_servers, string filename);
 	void Run();
 
 protected:

@@ -37,20 +37,18 @@ int main(int argc, char** argv)
 	if (world_rank == 0)
 	{
 		//Scheduler
-		Scheduler scheduler(file_name, server_count, worker_count);
-		scheduler.Run();
 	}
 	else if (world_rank <= server_count)
 	{
 		//Server
-		Server server(world_rank, server_count);
+		Server server(world_rank-1, server_count, file_name);
 		server.Run();
 	}
 	else
 	{
 		//Worker
 		Worker worker(server_count);
-		worker.LoadFile(file_name);
+		worker.LoadFile(file_name, file_name);
 		worker.Train();
 	}
 
