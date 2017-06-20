@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 		//Worker
 		Worker worker(server_count);
 		worker.LoadFile(file_name, file_name);
-		worker.Train();
+		worker.Train(100, 500);
 	}
 
 	MPI_Finalize();

@@ -2,10 +2,6 @@
 #include "message_type.h"
 #include <fstream>
 
-using std::cout;
-using std::vector;
-using std::string;
-
 Server::Server(int server_id, int total_servers, string filename)
 {
 	this->server_id = server_id;
@@ -30,11 +26,11 @@ void Server::Run()
 	for (int i = 0; i < params.size(); i++)
 		params[i] = float(rand()) / RAND_MAX * 2 - 1;
 	
-	/*
+	
 	params[0] = 0.2;
 	params[1] = 0.2;
 	params[2] = -24;
-	*/
+	
 	while (true)
 	{
 		char buf[MAX_LENGTH];
@@ -65,7 +61,7 @@ void Server::Run()
 void Server::HandleParamRequest(ParamServer::ParamRequest req, int source)
 {
 	int size = req.feature_id_size();
-	map<int, float> param_map;
+	unordered_map<int, float> param_map;
 
 	for (int i = 0; i < size; i++)
 	{

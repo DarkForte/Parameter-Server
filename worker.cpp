@@ -1,6 +1,7 @@
 #include "worker.h"
 #include <fstream>
 #include <cmath>
+using std::swap;
 
 Worker::Worker(int server_count)
 {
@@ -10,7 +11,7 @@ Worker::Worker(int server_count)
 void Worker::LoadFile(std::string file_name, string label_name)
 {
 	using namespace std;
-	
+
 	ifstream fin;
 
 	fin.open(path + file_name + ".meta");
@@ -32,13 +33,13 @@ void Worker::LoadFile(std::string file_name, string label_name)
 			col = 0;
 		}
 	}
-	
+
 
 	if (label_name != "")
 	{
 		fin.close();
 		fin.open(path + label_name + ".label");
-		
+
 		int tmp;
 		while (fin >> tmp)
 		{
@@ -52,12 +53,13 @@ void Worker::LoadFile(std::string file_name, string label_name)
 	return;
 }
 
-void Worker::Train()
+void Worker::Train(int batch_size, int iter_num)
 {
-	for (int i = 1; i <= 3000; i++)
+	for (int i = 1; i <= iter_num; i++)
 	{
-		map<int, float> param_map = RequestParams();
-		map<int, float> gradient_map = CalcGradient(param_map);
+		vector<int> minibatch_index = TakeMinibatch(batch_size);
+		unordered_map<int, float> param_map = RequestParams(minibatch_index);
+		unordered_map<int, float> gradient_map = x.CalcGradient(param_map, minibatch_index, y, feature_num);
 
 		SendGradientMap(gradient_map);
 	}
@@ -65,69 +67,46 @@ void Worker::Train()
 	return;
 }
 
-map<int, float> Worker::CalcGradient(map<int, float> param_map)
+vector<int> Worker::TakeMinibatch(int batch_size)
 {
-	map<int, float> ret;
-
 	int n = x.N();
-	vector<float> scores(n);
-
-	float loss = 0;
-
+	vector<int> seq(n);
 	for (int i = 0; i < n; i++)
+		seq[i] = i;
+
+	for (int i = 0; i < batch_size; i++)
 	{
-		float sum = 0;
-		for (int j = 0; j < feature_num; j++)
-		{
-			sum += x.Get(i, j) * param_map[j];
-		}
-		//bias
-		sum += param_map[feature_num];
-
-		float score = 1 / (1 + exp(-sum));
-		scores[i] = score;
-		if (y[i] == 1)
-		{
-			loss += -log(score);
-		}
-		else
-		{
-			loss += -log(1 - score);
-		}
+		int now_index = rand() % (n - i) + i;
+		swap(seq[i], seq[now_index]);
 	}
-	loss /= n;
 
-	cout << "loss: " << loss << endl;
-
-	for (int i = 0; i < n; i++)
-	{
-		float d_sum = scores[i] - y[i];
-
-		for (int j = 0; j < feature_num; j++)
-		{
-			ret[j] += d_sum * x.Get(i, j) / n;
-		}
-
-		//bias
-		ret[feature_num] += d_sum / n;
-	}
+	vector<int> ret(batch_size);
+	for (int i = 0; i < batch_size; i++)
+		ret[i] = seq[i];
 
 	return ret;
+
 }
 
-map<int, float> Worker::RequestParams()
+
+unordered_map<int, float> Worker::RequestParams(vector<int> minibatch_index)
 {
 	vector<vector<int>> feature_requests(server_count);
 	int request_sum = 0;
 
-	for (int i = 0; i < feature_num; i++)
+	for (int feature_i = 0; feature_i < feature_num; feature_i++)
 	{
-		if (x.Get(0, i) != 0)
+		for (int batch_i : minibatch_index)
 		{
-			int server_id = FindWhichServer(i);
-			feature_requests[server_id].push_back(i);
-			request_sum++;
+			if (x.Get(batch_i, feature_i) != 0)
+			{
+				int server_id = FindWhichServer(feature_i);
+				feature_requests[server_id].push_back(feature_i);
+				request_sum++;
+				break;
+			}
 		}
+
 	}
 
 	//bias
@@ -145,15 +124,12 @@ map<int, float> Worker::RequestParams()
 			req.add_feature_id(feature_id);
 		}
 
-		/*string out;
-		req.SerializeToString(&out);
-		MPI_Send(out.data(), out.size(), MPI_CHAR, server_num, static_cast<int>(MessageType::PARAM_REQUEST), MPI_COMM_WORLD);
-		*/
-		MPISendLite(req, server_num+1, MessageType::PARAM_REQUEST);
+		MPISendLite(req, server_num + 1, MessageType::PARAM_REQUEST);
 	}
 
+
 	int received_params = 0;
-	map<int, float> param_map;
+	unordered_map<int, float> param_map;
 	while (received_params < request_sum)
 	{
 		char buf[MAX_LENGTH];
@@ -177,9 +153,9 @@ map<int, float> Worker::RequestParams()
 	return param_map;
 }
 
-void Worker::SendGradientMap(map<int, float> gradient_map)
+void Worker::SendGradientMap(unordered_map<int, float> gradient_map)
 {
-	vector<map<int, float>> gradient_maps(server_count);
+	vector<unordered_map<int, float>> gradient_maps(server_count);
 
 	for (auto entry : gradient_map)
 	{
@@ -187,12 +163,12 @@ void Worker::SendGradientMap(map<int, float> gradient_map)
 		gradient_maps[server_num][entry.first] = entry.second;
 	}
 
-	for (int server_i=0; server_i < server_count; server_i++)
+	for (int server_i = 0; server_i < server_count; server_i++)
 	{
 		if (gradient_maps[server_i].empty())
 			continue;
 
-		map<int, float> now_map = gradient_maps[server_i];
+		unordered_map<int, float> now_map = gradient_maps[server_i];
 
 		ParamServer::GradientRequest gradient_req;
 		auto &send_gradient_map = *gradient_req.mutable_gradient_map();
@@ -201,7 +177,7 @@ void Worker::SendGradientMap(map<int, float> gradient_map)
 			send_gradient_map[entry.first] = entry.second;
 		}
 
-		MPISendLite(gradient_req, server_i+1, MessageType::GRADIENT_REQUEST);
+		MPISendLite(gradient_req, server_i + 1, MessageType::GRADIENT_REQUEST);
 	}
 	return;
 }

@@ -1,10 +1,14 @@
 #include<vector>
+#include<unordered_map>
+#include<iostream>
 using std::vector;
+using std::unordered_map;
 
 class Matrix
 {
 protected:
 	vector<vector<float>> data;
+
 
 public:
 	Matrix() {}
@@ -28,9 +32,8 @@ public:
 		data.push_back(line);
 	}
 
-	Matrix operator * (const Matrix &b) const;
-
 	void print();
 	int N() { return data.size(); }
-	
+
+	unordered_map<int, float> CalcGradient(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int feature_num);
 };

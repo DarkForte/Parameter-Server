@@ -9,7 +9,7 @@
 
 using std::cout;
 using std::vector;
-using std::map;
+using std::unordered_map;
 using std::endl;
 using std::string;
 
