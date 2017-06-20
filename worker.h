@@ -24,9 +24,10 @@ protected:
 
 public:
 	Worker(int server_count);
-	void LoadFile(string path, string data_name, string label_name = "");
+	void LoadFile(string path, string data_name, string label_name, string suffix);
 	void Train(int batch_size, int iter_num);
 	void Test();
+	void WaitTestCommand();
 
 protected:
 	unordered_map<int, float> RequestParams(vector<int> minibatch_index);

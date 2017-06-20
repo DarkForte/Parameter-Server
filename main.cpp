@@ -23,10 +23,11 @@ int main(int argc, char** argv)
 	worker_count = atoi(argv[2]);
 	string filepath(argv[3]);
 	filepath += "/";
-	string filename(argv[4]);
-	float learning_rate = atof(argv[5]);
-	int iter_nums = atoi(argv[6]);
-	int batch_size = atoi(argv[7]);
+	string filename_train(argv[4]);
+	string filename_test(argv[5]);
+	float learning_rate = atof(argv[6]);
+	int iter_nums = atoi(argv[7]);
+	int batch_size = atoi(argv[8]);
 
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -41,19 +42,26 @@ int main(int argc, char** argv)
 	if (world_rank == 0)
 	{
 		//Scheduler
+		Scheduler scheduler(server_count, worker_count);
+		scheduler.Run();
 	}
 	else if (world_rank <= server_count)
 	{
 		//Server
-		Server server(world_rank-1, server_count, filepath, filename, learning_rate);
+		Server server(world_rank-1, server_count, filepath, filename_train, learning_rate);
 		server.Run();
 	}
 	else
 	{
 		//Worker
-		Worker worker(server_count);
-		worker.LoadFile(filepath, filename, filename);
-		worker.Train(batch_size, iter_nums);
+		Worker train_worker(server_count);
+		train_worker.LoadFile(filepath, filename_train, filename_train, "train");
+		train_worker.Train(batch_size, iter_nums);
+
+		Worker test_worker(server_count);
+		test_worker.LoadFile(filepath, filename_test, filename_test, "test");
+		test_worker.WaitTestCommand();
+		test_worker.Test();
 	}
 
 	MPI_Finalize();

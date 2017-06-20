@@ -16,3 +16,15 @@ message GradientRequest
 {
   map<int32, float> gradient_map = 1;
 }
+
+message Command
+{
+	enum Type
+	{
+		TRAINING_COMPLETE = 0;
+		START_TEST = 1;
+		TEST_COMPLETE = 2;
+		SHUTDOWN = 3;
+	}
+	optional Type type = 1;
+}

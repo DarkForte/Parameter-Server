@@ -30,9 +30,13 @@
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/map.h>  // IWYU pragma: export
 #include <google/protobuf/map_field_inl.h>
+#include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 // @@protoc_insertion_point(includes)
 namespace ParamServer {
+class Command;
+class CommandDefaultTypeInternal;
+extern CommandDefaultTypeInternal _Command_default_instance_;
 class GradientRequest;
 class GradientRequestDefaultTypeInternal;
 extern GradientRequestDefaultTypeInternal _GradientRequest_default_instance_;
@@ -66,6 +70,27 @@ void AddDescriptors();
 void InitDefaults();
 }  // namespace protobuf_message_2eproto
 
+enum Command_Type {
+  Command_Type_TRAINING_COMPLETE = 0,
+  Command_Type_START_TEST = 1,
+  Command_Type_TEST_COMPLETE = 2,
+  Command_Type_SHUTDOWN = 3
+};
+bool Command_Type_IsValid(int value);
+const Command_Type Command_Type_Type_MIN = Command_Type_TRAINING_COMPLETE;
+const Command_Type Command_Type_Type_MAX = Command_Type_SHUTDOWN;
+const int Command_Type_Type_ARRAYSIZE = Command_Type_Type_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* Command_Type_descriptor();
+inline const ::std::string& Command_Type_Name(Command_Type value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    Command_Type_descriptor(), value);
+}
+inline bool Command_Type_Parse(
+    const ::std::string& name, Command_Type* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<Command_Type>(
+    Command_Type_descriptor(), name, value);
+}
 // ===================================================================
 
 class ParamRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ParamServer.ParamRequest) */ {
@@ -403,6 +428,128 @@ class GradientRequest : public ::google::protobuf::Message /* @@protoc_insertion
   private:
   friend struct protobuf_message_2eproto::TableStruct;
 };
+// -------------------------------------------------------------------
+
+class Command : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ParamServer.Command) */ {
+ public:
+  Command();
+  virtual ~Command();
+
+  Command(const Command& from);
+
+  inline Command& operator=(const Command& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields();
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Command& default_instance();
+
+  static inline const Command* internal_default_instance() {
+    return reinterpret_cast<const Command*>(
+               &_Command_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    5;
+
+  void Swap(Command* other);
+
+  // implements Message ----------------------------------------------
+
+  inline Command* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  Command* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const Command& from);
+  void MergeFrom(const Command& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(Command* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  typedef Command_Type Type;
+  static const Type TRAINING_COMPLETE =
+    Command_Type_TRAINING_COMPLETE;
+  static const Type START_TEST =
+    Command_Type_START_TEST;
+  static const Type TEST_COMPLETE =
+    Command_Type_TEST_COMPLETE;
+  static const Type SHUTDOWN =
+    Command_Type_SHUTDOWN;
+  static inline bool Type_IsValid(int value) {
+    return Command_Type_IsValid(value);
+  }
+  static const Type Type_MIN =
+    Command_Type_Type_MIN;
+  static const Type Type_MAX =
+    Command_Type_Type_MAX;
+  static const int Type_ARRAYSIZE =
+    Command_Type_Type_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  Type_descriptor() {
+    return Command_Type_descriptor();
+  }
+  static inline const ::std::string& Type_Name(Type value) {
+    return Command_Type_Name(value);
+  }
+  static inline bool Type_Parse(const ::std::string& name,
+      Type* value) {
+    return Command_Type_Parse(name, value);
+  }
+
+  // accessors -------------------------------------------------------
+
+  // optional .ParamServer.Command.Type type = 1;
+  bool has_type() const;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::ParamServer::Command_Type type() const;
+  void set_type(::ParamServer::Command_Type value);
+
+  // @@protoc_insertion_point(class_scope:ParamServer.Command)
+ private:
+  void set_has_type();
+  void clear_has_type();
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::HasBits<1> _has_bits_;
+  mutable int _cached_size_;
+  int type_;
+  friend struct protobuf_message_2eproto::TableStruct;
+};
 // ===================================================================
 
 
@@ -489,7 +636,38 @@ GradientRequest::mutable_gradient_map() {
   return gradient_map_.MutableMap();
 }
 
+// -------------------------------------------------------------------
+
+// Command
+
+// optional .ParamServer.Command.Type type = 1;
+inline bool Command::has_type() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void Command::set_has_type() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void Command::clear_has_type() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void Command::clear_type() {
+  type_ = 0;
+  clear_has_type();
+}
+inline ::ParamServer::Command_Type Command::type() const {
+  // @@protoc_insertion_point(field_get:ParamServer.Command.type)
+  return static_cast< ::ParamServer::Command_Type >(type_);
+}
+inline void Command::set_type(::ParamServer::Command_Type value) {
+  assert(::ParamServer::Command_Type_IsValid(value));
+  set_has_type();
+  type_ = value;
+  // @@protoc_insertion_point(field_set:ParamServer.Command.type)
+}
+
 #endif  // !PROTOBUF_INLINE_NOT_IN_HEADERS
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -503,6 +681,20 @@ GradientRequest::mutable_gradient_map() {
 
 
 }  // namespace ParamServer
+
+#ifndef SWIG
+namespace google {
+namespace protobuf {
+
+template <> struct is_proto_enum< ::ParamServer::Command_Type> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::ParamServer::Command_Type>() {
+  return ::ParamServer::Command_Type_descriptor();
+}
+
+}  // namespace protobuf
+}  // namespace google
+#endif  // SWIG
 
 // @@protoc_insertion_point(global_scope)
 

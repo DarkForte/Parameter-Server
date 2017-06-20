@@ -57,7 +57,16 @@ void Server::Run()
 			gradient_request.ParseFromArray(buf, length);
 			HandleGradientRequest(gradient_request, source);
 		}
+		else if (message_type == MessageType::COMMAND)
+		{
+			ParamServer::Command command;
+			command.ParseFromArray(buf, length);
+
+			if (command.type() == ParamServer::Command_Type::Command_Type_SHUTDOWN)
+				break;
+		}
 	}
+	return;
 }
 
 void Server::HandleParamRequest(ParamServer::ParamRequest req, int source)

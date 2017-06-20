@@ -3,6 +3,8 @@
 #include<iostream>
 using std::vector;
 using std::unordered_map;
+using std::pair;
+using std::make_pair;
 
 class Matrix
 {
@@ -36,4 +38,8 @@ public:
 	int N() { return data.size(); }
 
 	unordered_map<int, float> CalcGradient(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int feature_num);
+	pair<float, unordered_map<int, float>> CalcLossAndScores(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int feature_num);
+
+
+
 };

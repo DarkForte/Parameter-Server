@@ -28,13 +28,16 @@ class GradientRequest_GradientMapEntryDefaultTypeInternal : public ::google::pro
 } _GradientRequest_GradientMapEntry_default_instance_;
 class GradientRequestDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<GradientRequest> {
 } _GradientRequest_default_instance_;
+class CommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Command> {
+} _Command_default_instance_;
 
 namespace protobuf_message_2eproto {
 
 
 namespace {
 
-::google::protobuf::Metadata file_level_metadata[5];
+::google::protobuf::Metadata file_level_metadata[6];
+const ::google::protobuf::EnumDescriptor* file_level_enum_descriptors[1];
 
 }  // namespace
 
@@ -49,6 +52,7 @@ PROTOBUF_CONSTEXPR_VAR ::google::protobuf::internal::AuxillaryParseTableField
 };
 PROTOBUF_CONSTEXPR_VAR ::google::protobuf::internal::ParseTable const
     TableStruct::schema[] = {
+  { NULL, NULL, 0, -1, -1, false },
   { NULL, NULL, 0, -1, -1, false },
   { NULL, NULL, 0, -1, -1, false },
   { NULL, NULL, 0, -1, -1, false },
@@ -78,12 +82,20 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GradientRequest, gradient_map_),
   ~0u,
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Command, _has_bits_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Command, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Command, type_),
+  0,
 };
 
 static const ::google::protobuf::internal::MigrationSchema schemas[] = {
   { 0, 6, sizeof(ParamRequest)},
   { 7, 13, sizeof(ParamResponse)},
   { 14, 20, sizeof(GradientRequest)},
+  { 21, 27, sizeof(Command)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -92,6 +104,7 @@ static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&_ParamResponse_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_GradientRequest_GradientMapEntry_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_GradientRequest_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_Command_default_instance_),
 };
 
 namespace {
@@ -101,7 +114,7 @@ void protobuf_AssignDescriptors() {
   ::google::protobuf::MessageFactory* factory = NULL;
   AssignDescriptors(
       "message.proto", schemas, file_default_instances, TableStruct::offsets, factory,
-      file_level_metadata, NULL, NULL);
+      file_level_metadata, file_level_enum_descriptors, NULL);
 file_level_metadata[1].reflection = ParamResponse::ParamResponse_ParamMapEntry::CreateReflection(file_level_metadata[1].descriptor, _ParamResponse_ParamMapEntry_default_instance_.get_mutable());
 file_level_metadata[3].reflection = GradientRequest::GradientRequest_GradientMapEntry::CreateReflection(file_level_metadata[3].descriptor, _GradientRequest_GradientMapEntry_default_instance_.get_mutable());
 }
@@ -114,7 +127,7 @@ void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) GOOGLE_ATTRIBUTE_COLD;
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 5);
+  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 6);
 }
 
 }  // namespace
@@ -126,6 +139,8 @@ void TableStruct::Shutdown() {
   delete file_level_metadata[2].reflection;
   _GradientRequest_default_instance_.Shutdown();
   delete file_level_metadata[4].reflection;
+  _Command_default_instance_.Shutdown();
+  delete file_level_metadata[5].reflection;
   delete file_level_metadata[1].reflection;
   delete file_level_metadata[3].reflection;
 }
@@ -139,6 +154,7 @@ void TableStruct::InitDefaultsImpl() {
   _ParamResponse_default_instance_.DefaultConstruct();
   _GradientRequest_GradientMapEntry_default_instance_.DefaultConstruct();
   _GradientRequest_default_instance_.DefaultConstruct();
+  _Command_default_instance_.DefaultConstruct();
   _ParamResponse_ParamMapEntry_default_instance_.get_mutable()->set_default_instance(_ParamResponse_ParamMapEntry_default_instance_.get_mutable());
   _ParamResponse_ParamMapEntry_default_instance_.get_mutable()->InitAsDefaultInstance();
   _GradientRequest_GradientMapEntry_default_instance_.get_mutable()->set_default_instance(_GradientRequest_GradientMapEntry_default_instance_.get_mutable());
@@ -160,10 +176,13 @@ void AddDescriptorsImpl() {
       "ientRequest\022C\n\014gradient_map\030\001 \003(\0132-.Para"
       "mServer.GradientRequest.GradientMapEntry"
       "\0322\n\020GradientMapEntry\022\013\n\003key\030\001 \001(\005\022\r\n\005val"
-      "ue\030\002 \001(\002:\0028\001"
+      "ue\030\002 \001(\002:\0028\001\"\202\001\n\007Command\022\'\n\004type\030\001 \001(\0162\031"
+      ".ParamServer.Command.Type\"N\n\004Type\022\025\n\021TRA"
+      "INING_COMPLETE\020\000\022\016\n\nSTART_TEST\020\001\022\021\n\rTEST"
+      "_COMPLETE\020\002\022\014\n\010SHUTDOWN\020\003"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 332);
+      descriptor, 465);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "message.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&TableStruct::Shutdown);
@@ -182,6 +201,31 @@ struct StaticDescriptorInitializer {
 
 }  // namespace protobuf_message_2eproto
 
+const ::google::protobuf::EnumDescriptor* Command_Type_descriptor() {
+  protobuf_message_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_message_2eproto::file_level_enum_descriptors[0];
+}
+bool Command_Type_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      return true;
+    default:
+      return false;
+  }
+}
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const Command_Type Command::TRAINING_COMPLETE;
+const Command_Type Command::START_TEST;
+const Command_Type Command::TEST_COMPLETE;
+const Command_Type Command::SHUTDOWN;
+const Command_Type Command::Type_MIN;
+const Command_Type Command::Type_MAX;
+const int Command::Type_ARRAYSIZE;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 // ===================================================================
 
@@ -1165,6 +1209,278 @@ GradientRequest::gradient_map() const {
 GradientRequest::mutable_gradient_map() {
   // @@protoc_insertion_point(field_mutable_map:ParamServer.GradientRequest.gradient_map)
   return gradient_map_.MutableMap();
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int Command::kTypeFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+Command::Command()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_message_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:ParamServer.Command)
+}
+Command::Command(const Command& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _has_bits_(from._has_bits_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  type_ = from.type_;
+  // @@protoc_insertion_point(copy_constructor:ParamServer.Command)
+}
+
+void Command::SharedCtor() {
+  _cached_size_ = 0;
+  type_ = 0;
+}
+
+Command::~Command() {
+  // @@protoc_insertion_point(destructor:ParamServer.Command)
+  SharedDtor();
+}
+
+void Command::SharedDtor() {
+}
+
+void Command::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Command::descriptor() {
+  protobuf_message_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_message_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
+}
+
+const Command& Command::default_instance() {
+  protobuf_message_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+Command* Command::New(::google::protobuf::Arena* arena) const {
+  Command* n = new Command;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void Command::Clear() {
+// @@protoc_insertion_point(message_clear_start:ParamServer.Command)
+  type_ = 0;
+  _has_bits_.Clear();
+  _internal_metadata_.Clear();
+}
+
+bool Command::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:ParamServer.Command)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional .ParamServer.Command.Type type = 1;
+      case 1: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(8u)) {
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          if (::ParamServer::Command_Type_IsValid(value)) {
+            set_type(static_cast< ::ParamServer::Command_Type >(value));
+          } else {
+            mutable_unknown_fields()->AddVarint(1, value);
+          }
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:ParamServer.Command)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:ParamServer.Command)
+  return false;
+#undef DO_
+}
+
+void Command::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:ParamServer.Command)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
+  // optional .ParamServer.Command.Type type = 1;
+  if (cached_has_bits & 0x00000001u) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      1, this->type(), output);
+  }
+
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:ParamServer.Command)
+}
+
+::google::protobuf::uint8* Command::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:ParamServer.Command)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
+  // optional .ParamServer.Command.Type type = 1;
+  if (cached_has_bits & 0x00000001u) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      1, this->type(), target);
+  }
+
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:ParamServer.Command)
+  return target;
+}
+
+size_t Command::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:ParamServer.Command)
+  size_t total_size = 0;
+
+  if (_internal_metadata_.have_unknown_fields()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  // optional .ParamServer.Command.Type type = 1;
+  if (has_type()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Command::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:ParamServer.Command)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Command* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const Command>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:ParamServer.Command)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:ParamServer.Command)
+    MergeFrom(*source);
+  }
+}
+
+void Command::MergeFrom(const Command& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:ParamServer.Command)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.has_type()) {
+    set_type(from.type());
+  }
+}
+
+void Command::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:ParamServer.Command)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Command::CopyFrom(const Command& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:ParamServer.Command)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Command::IsInitialized() const {
+  return true;
+}
+
+void Command::Swap(Command* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void Command::InternalSwap(Command* other) {
+  std::swap(type_, other->type_);
+  std::swap(_has_bits_[0], other->_has_bits_[0]);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata Command::GetMetadata() const {
+  protobuf_message_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_message_2eproto::file_level_metadata[kIndexInFileMessages];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// Command
+
+// optional .ParamServer.Command.Type type = 1;
+bool Command::has_type() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+void Command::set_has_type() {
+  _has_bits_[0] |= 0x00000001u;
+}
+void Command::clear_has_type() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+void Command::clear_type() {
+  type_ = 0;
+  clear_has_type();
+}
+::ParamServer::Command_Type Command::type() const {
+  // @@protoc_insertion_point(field_get:ParamServer.Command.type)
+  return static_cast< ::ParamServer::Command_Type >(type_);
+}
+void Command::set_type(::ParamServer::Command_Type value) {
+  assert(::ParamServer::Command_Type_IsValid(value));
+  set_has_type();
+  type_ = value;
+  // @@protoc_insertion_point(field_set:ParamServer.Command.type)
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS

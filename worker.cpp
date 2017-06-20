@@ -8,7 +8,7 @@ Worker::Worker(int server_count)
 	this->server_count = server_count;
 }
 
-void Worker::LoadFile(string path, string file_name, string label_name)
+void Worker::LoadFile(string path, string file_name, string label_name, string suffix)
 {
 	using namespace std;
 
@@ -18,7 +18,7 @@ void Worker::LoadFile(string path, string file_name, string label_name)
 	fin >> feature_num;
 
 	fin.close();
-	fin.open(path + file_name + ".train");
+	fin.open(path + file_name + "." + suffix);
 	vector<float> data(feature_num);
 
 	float tmp;
@@ -64,6 +64,64 @@ void Worker::Train(int batch_size, int iter_num)
 		SendGradientMap(gradient_map);
 	}
 
+	ParamServer::Command command;
+	command.set_type(ParamServer::Command_Type::Command_Type_TRAINING_COMPLETE);
+	MPISendLite(command, SCHEDULER_ID, MessageType::COMMAND);
+
+	return;
+}
+
+void Worker::WaitTestCommand()
+{
+	char buf[MAX_LENGTH];
+	while (true)
+	{
+		MPIMsgDescriptor descriptor = MPIRecvLite(buf, static_cast<int>(MessageType::COMMAND), SCHEDULER_ID);
+		int length = descriptor.length;
+
+		ParamServer::Command command;
+		command.ParseFromArray(buf, length);
+		if (command.type() == ParamServer::Command_Type::Command_Type_START_TEST)
+			break;
+	}
+
+	return;
+}
+
+void Worker::Test()
+{
+	int n = x.N();
+
+	vector<int> index(n);
+	for (int i = 0; i < index.size(); i++)
+		index[i] = i;
+
+	unordered_map<int, float> param_map = RequestParams(index);
+	pair<float, unordered_map<int, float>> loss_and_scores = x.CalcLossAndScores(param_map, index, y, feature_num);
+	float loss = loss_and_scores.first;
+	auto scores = loss_and_scores.second;
+
+	vector<int> predict(n);
+	for (int i = 0; i < n; i++)
+	{
+		if (scores[i] < 0.5)
+			predict[i] = 0;
+		else
+			predict[i] = 1;
+	}
+	
+	int correct_count = 0;
+	for (int i = 0; i < n; i++)
+	{
+		if (predict[i] == y[i])
+			correct_count++;
+	}
+	cout << "Correct ratio:" << float(correct_count) / float(x.N()) << endl;
+
+	ParamServer::Command command;
+	command.set_type(ParamServer::Command_Type::Command_Type_TEST_COMPLETE);
+	MPISendLite(command, SCHEDULER_ID, MessageType::COMMAND);
+
 	return;
 }
 
@@ -106,7 +164,6 @@ unordered_map<int, float> Worker::RequestParams(vector<int> minibatch_index)
 				break;
 			}
 		}
-
 	}
 
 	//bias
