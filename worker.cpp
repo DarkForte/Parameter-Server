@@ -8,7 +8,7 @@ Worker::Worker(int server_count)
 	this->server_count = server_count;
 }
 
-void Worker::LoadFile(std::string file_name, string label_name)
+void Worker::LoadFile(string path, string file_name, string label_name)
 {
 	using namespace std;
 

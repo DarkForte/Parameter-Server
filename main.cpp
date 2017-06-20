@@ -19,10 +19,14 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	//assume no more than 10 servers/workers
-	server_count = static_cast<int>(argv[1][0] - '0');
-	worker_count = static_cast<int>(argv[2][0] - '0');
-	string file_name(argv[3]);
+	server_count = atoi(argv[1]);
+	worker_count = atoi(argv[2]);
+	string filepath(argv[3]);
+	filepath += "/";
+	string filename(argv[4]);
+	float learning_rate = atof(argv[5]);
+	int iter_nums = atoi(argv[6]);
+	int batch_size = atoi(argv[7]);
 
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -41,15 +45,15 @@ int main(int argc, char** argv)
 	else if (world_rank <= server_count)
 	{
 		//Server
-		Server server(world_rank-1, server_count, file_name);
+		Server server(world_rank-1, server_count, filepath, filename, learning_rate);
 		server.Run();
 	}
 	else
 	{
 		//Worker
 		Worker worker(server_count);
-		worker.LoadFile(file_name, file_name);
-		worker.Train(100, 500);
+		worker.LoadFile(filepath, filename, filename);
+		worker.Train(batch_size, iter_nums);
 	}
 
 	MPI_Finalize();

@@ -21,11 +21,10 @@ protected:
 	vector<int> y;
 	int feature_num;
 	int server_count;
-	int batch_size = 100;
 
 public:
 	Worker(int server_count);
-	void LoadFile(std::string data_name, std::string label_name = "");
+	void LoadFile(string path, string data_name, string label_name = "");
 	void Train(int batch_size, int iter_num);
 	void Test();
 

@@ -2,18 +2,20 @@
 #include "message_type.h"
 #include <fstream>
 
-Server::Server(int server_id, int total_servers, string filename)
+Server::Server(int server_id, int total_servers, string filepath, string filename, float learning_rate)
 {
 	this->server_id = server_id;
 	this->total_servers = total_servers;
+	this->filepath = filepath;
 	this->filename = filename;
+	this->learning_rate = learning_rate;
 }
 
 void Server::Run()
 {
 	cout << "Server running" << endl;
 
-	std::ifstream fin(path + filename + ".meta");
+	std::ifstream fin(filepath + filename + ".meta");
 	fin >> total_params;
 
 	int param_with_bias = total_params + 1;
