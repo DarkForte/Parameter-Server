@@ -1,5 +1,6 @@
 #include "worker.h"
 #include <fstream>
+#include <sstream>
 #include <cmath>
 using std::swap;
 
@@ -8,8 +9,9 @@ Worker::Worker(int server_count)
 	this->server_count = server_count;
 }
 
-void Worker::LoadFile(string path, string file_name, string label_name, string suffix)
+void Worker::LoadFile(string path, string file_name)
 {
+	cout << "Reading file: " << file_name << endl;
 	using namespace std;
 
 	ifstream fin;
@@ -18,37 +20,38 @@ void Worker::LoadFile(string path, string file_name, string label_name, string s
 	fin >> feature_num;
 
 	fin.close();
-	fin.open(path + file_name + "." + suffix);
-	vector<float> data(feature_num);
+	fin.open(path + file_name);
 
-	float tmp;
-	int col = 0;
-	while (fin >> tmp)
+	int line = 0;
+	string now_line;
+	while (getline(fin, now_line))
 	{
-		data[col] = tmp;
-		col++;
-		if (col == feature_num)
+
+		istringstream ss(now_line);
+		int now_label;
+		ss >> now_label;
+		y.push_back(now_label);
+
+		map<int, float> now_data;
+		string feature_string;
+		while (ss >> feature_string)
 		{
-			x.AddData(data);
-			col = 0;
+			istringstream feature_ss(feature_string);
+			string buf;
+			getline(feature_ss, buf, ':');
+			int pos = stoi(buf);
+			getline(feature_ss, buf, ':');
+			float value = stof(buf);
+
+			now_data[pos] = value;
+
 		}
+
+		x.AddData(now_data);
+		line++;
 	}
 
-
-	if (label_name != "")
-	{
-		fin.close();
-		fin.open(path + label_name + ".label");
-
-		int tmp;
-		while (fin >> tmp)
-		{
-			y.push_back(tmp);
-		}
-		fin.close();
-	}
-
-	cout << "y size: " << y.size() << endl;
+	cout << "Read complete" << endl;
 
 	return;
 }
@@ -60,6 +63,9 @@ void Worker::Train(int batch_size, int iter_num)
 		vector<int> minibatch_index = TakeMinibatch(batch_size);
 		unordered_map<int, float> param_map = RequestParams(minibatch_index);
 		unordered_map<int, float> gradient_map = x.CalcGradient(param_map, minibatch_index, y, feature_num);
+
+		for (auto entry : gradient_map)
+			cout << entry.first << " " << entry.second << endl;
 
 		SendGradientMap(gradient_map);
 	}
@@ -90,13 +96,14 @@ void Worker::WaitTestCommand()
 
 void Worker::Test()
 {
+	cout << "Worker testing" << endl;
 	int n = x.N();
 
 	vector<int> index(n);
-	for (int i = 0; i < index.size(); i++)
+	for (int i = 0; i < n; i++)
 		index[i] = i;
 
-	unordered_map<int, float> param_map = RequestParams(index);
+	unordered_map<int, float> param_map = RequestAllParams();
 	pair<float, unordered_map<int, float>> loss_and_scores = x.CalcLossAndScores(param_map, index, y, feature_num);
 	float loss = loss_and_scores.first;
 	auto scores = loss_and_scores.second;
@@ -109,7 +116,7 @@ void Worker::Test()
 		else
 			predict[i] = 1;
 	}
-	
+
 	int correct_count = 0;
 	for (int i = 0; i < n; i++)
 	{
@@ -146,6 +153,21 @@ vector<int> Worker::TakeMinibatch(int batch_size)
 
 }
 
+unordered_map<int, float> Worker::RequestAllParams()
+{
+	vector<vector<int>> feature_requests(server_count);
+	int request_sum = 0;
+	for (int i = 0; i < feature_num + 1; i++)
+	{
+		int server_id = FindWhichServer(i);
+		feature_requests[server_id].push_back(i);
+	}
+
+	request_sum = feature_num + 1;
+	cout << "AllParams request complete, sum= " << request_sum << endl;
+	return ProposeRequestToServers(feature_requests, request_sum);
+
+}
 
 unordered_map<int, float> Worker::RequestParams(vector<int> minibatch_index)
 {
@@ -156,7 +178,7 @@ unordered_map<int, float> Worker::RequestParams(vector<int> minibatch_index)
 	{
 		for (int batch_i : minibatch_index)
 		{
-			if (x.Get(batch_i, feature_i) != 0)
+			if (x.HasFeature(batch_i, feature_i))
 			{
 				int server_id = FindWhichServer(feature_i);
 				feature_requests[server_id].push_back(feature_i);
@@ -166,10 +188,20 @@ unordered_map<int, float> Worker::RequestParams(vector<int> minibatch_index)
 		}
 	}
 
+
 	//bias
 	feature_requests[FindWhichServer(feature_num)].push_back(feature_num);
 	request_sum++;
 
+	cout << "Request sum:" << request_sum << endl;
+
+	auto param_map = ProposeRequestToServers(feature_requests, request_sum);
+
+	return param_map;
+}
+
+unordered_map<int, float> Worker::ProposeRequestToServers(vector<vector<int>> feature_requests, int request_sum)
+{
 	for (int server_num = 0; server_num < server_count; server_num++)
 	{
 		if (feature_requests[server_num].empty())
@@ -205,6 +237,8 @@ unordered_map<int, float> Worker::RequestParams(vector<int> minibatch_index)
 			}
 			received_params += param_response.param_map_size();
 		}
+
+		cout << "Receive Params: " << received_params << endl;
 	}
 
 	return param_map;

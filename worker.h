@@ -24,7 +24,7 @@ protected:
 
 public:
 	Worker(int server_count);
-	void LoadFile(string path, string data_name, string label_name, string suffix);
+	void LoadFile(string path, string data_name);
 	void Train(int batch_size, int iter_num);
 	void Test();
 	void WaitTestCommand();
@@ -34,4 +34,6 @@ protected:
 	void SendGradientMap(unordered_map<int, float> gradient_map);
 	int FindWhichServer(int feature_num);
 	vector<int> TakeMinibatch(int batch_size);
+	unordered_map<int, float> RequestAllParams();
+	unordered_map<int, float> ProposeRequestToServers(vector<vector<int>> feature_requests, int request_sum);
 };

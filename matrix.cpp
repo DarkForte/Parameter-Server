@@ -8,17 +8,17 @@ using std::endl;
 void Matrix::print()
 {
 	using namespace std;
-	for (vector<float> line : data)
+	for (auto line : data)
 	{
-		for (float i : line)
+		for (auto entry : line)
 		{
-			cout << i << " ";
+			cout << entry.first << ":" << entry.second;
 		}
 		cout << endl;
 	}
 }
 
-pair<float, unordered_map<int, float>> Matrix::CalcLossAndScores(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int feature_num)
+pair<float, unordered_map<int, float>> Matrix::CalcLossAndScores(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int bias_id)
 {
 	int n = batch_index.size();
 	unordered_map<int, float> scores;
@@ -28,12 +28,15 @@ pair<float, unordered_map<int, float>> Matrix::CalcLossAndScores(unordered_map<i
 	for (int i : batch_index)
 	{
 		float sum = 0;
-		for (int j = 0; j < feature_num; j++)
+		for (auto entry : data[i])
 		{
-			sum += Get(i, j) * param_map[j];
+			int pos = entry.first;
+			float value = entry.second;
+
+			sum += param_map[pos] * value;
 		}
 		//bias
-		sum += param_map[feature_num];
+		sum += param_map[bias_id];
 
 		float score = 1 / (1 + exp(-sum));
 		scores[i] = score;
@@ -53,13 +56,13 @@ pair<float, unordered_map<int, float>> Matrix::CalcLossAndScores(unordered_map<i
 }
 
 
-unordered_map<int, float> Matrix::CalcGradient(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int feature_num)
+unordered_map<int, float> Matrix::CalcGradient(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int bias_id)
 {
 	unordered_map<int, float> ret;
 
 	int n = batch_index.size();
 
-	auto loss_and_scores = CalcLossAndScores(param_map, batch_index, y, feature_num);
+	auto loss_and_scores = CalcLossAndScores(param_map, batch_index, y, bias_id);
 	float loss = loss_and_scores.first;
 	auto scores = loss_and_scores.second;
 
@@ -69,13 +72,19 @@ unordered_map<int, float> Matrix::CalcGradient(unordered_map<int, float> param_m
 	{
 		float d_sum = scores[i] - y[i];
 
-		for (int j = 0; j < feature_num; j++)
+		/*for (int j = 0; j < feature_num; j++)
 		{
 			ret[j] += d_sum * Get(i, j) / n;
+		}*/
+		for (auto entry : data[i])
+		{
+			int pos = entry.first;
+			int value = entry.second;
+			ret[pos] += d_sum * value / n;
 		}
 
 		//bias
-		ret[feature_num] += d_sum / n;
+		ret[bias_id] += d_sum / n;
 	}
 
 	return ret;

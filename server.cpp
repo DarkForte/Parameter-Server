@@ -33,6 +33,15 @@ void Server::Run()
 	params[1] = 0.2;
 	params[2] = -24;
 	
+
+	/*if (server_id == 0)
+	{
+		params[0] = 0.2;
+		params[1] = -24;
+	}
+	else
+		params[0] = 0.2;*/
+
 	while (true)
 	{
 		char buf[MAX_LENGTH];

@@ -55,11 +55,11 @@ int main(int argc, char** argv)
 	{
 		//Worker
 		Worker train_worker(server_count);
-		train_worker.LoadFile(filepath, filename_train, filename_train, "train");
+		train_worker.LoadFile(filepath, filename_train);
 		train_worker.Train(batch_size, iter_nums);
 
 		Worker test_worker(server_count);
-		test_worker.LoadFile(filepath, filename_test, filename_test, "test");
+		test_worker.LoadFile(filepath, filename_test);
 		test_worker.WaitTestCommand();
 		test_worker.Test();
 	}
