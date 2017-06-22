@@ -2,7 +2,7 @@
 #include "message_type.h"
 #include <fstream>
 
-Server::Server(int server_id, int total_servers, string filepath, string filename, float learning_rate, string processor_name)
+Server::Server(int server_id, int total_servers, string filepath, string filename, double learning_rate, string processor_name)
 {
 	this->server_id = server_id;
 	this->total_servers = total_servers;
@@ -28,7 +28,7 @@ void Server::Run()
 
 	params.resize(param_num);
 	for (int i = 0; i < params.size(); i++)
-		params[i] = float(rand()) / RAND_MAX * 2 - 1;
+		params[i] = double(rand()) / RAND_MAX * 2 - 1;
 	
 	
 	/*params[0] = 0.2;
@@ -83,7 +83,7 @@ void Server::Run()
 void Server::HandleParamRequest(ParamServer::ParamRequest req, int source)
 {
 	int size = req.feature_id_size();
-	unordered_map<int, float> param_map;
+	unordered_map<int, double> param_map;
 
 	for (int i = 0; i < size; i++)
 	{

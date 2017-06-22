@@ -21,12 +21,12 @@ protected:
 	int total_params;
 	string filepath;
 	string filename;
-	vector<float> params;
-	float learning_rate;
+	vector<double> params;
+	double learning_rate;
 	string processor_name;
 
 public:
-	Server(int server_id, int total_servers, string filepath, string filename, float learning_rate, string processor_name);
+	Server(int server_id, int total_servers, string filepath, string filename, double learning_rate, string processor_name);
 	void Run();
 
 protected:

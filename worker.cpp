@@ -33,7 +33,7 @@ void Worker::LoadFile(string path, string file_name)
 		ss >> now_label;
 		y.push_back(now_label);
 
-		map<int, float> now_data;
+		map<int, double> now_data;
 		string feature_string;
 		while (ss >> feature_string)
 		{
@@ -42,7 +42,7 @@ void Worker::LoadFile(string path, string file_name)
 			getline(feature_ss, buf, ':');
 			int pos = stoi(buf);
 			getline(feature_ss, buf, ':');
-			float value = stof(buf);
+			double value = stod(buf);
 
 			now_data[pos] = value;
 
@@ -62,10 +62,10 @@ void Worker::Train(int batch_size, int iter_num)
 	for (int i = 1; i <= iter_num; i++)
 	{
 		vector<int> minibatch_index = TakeMinibatch(batch_size);
-		unordered_map<int, float> param_map = RequestParams(minibatch_index);
+		unordered_map<int, double> param_map = RequestParams(minibatch_index);
 		auto loss_gradient = x.CalcLossAndGradient(param_map, minibatch_index, y, feature_num);
-		unordered_map<int, float> gradient_map = loss_gradient.second;
-		float loss = loss_gradient.first;
+		unordered_map<int, double> gradient_map = loss_gradient.second;
+		double loss = loss_gradient.first;
 
 		if ((i-1) % 100 == 0)
 		{
@@ -108,9 +108,9 @@ void Worker::Test()
 	for (int i = 0; i < n; i++)
 		index[i] = i;
 
-	unordered_map<int, float> param_map = RequestAllParams();
-	pair<float, unordered_map<int, float>> loss_and_scores = x.CalcLossAndScores(param_map, index, y, feature_num);
-	float loss = loss_and_scores.first;
+	unordered_map<int, double> param_map = RequestAllParams();
+	pair<double, unordered_map<int, double>> loss_and_scores = x.CalcLossAndScores(param_map, index, y, feature_num);
+	double loss = loss_and_scores.first;
 	auto scores = loss_and_scores.second;
 
 	vector<int> predict(n);
@@ -128,7 +128,7 @@ void Worker::Test()
 		if (predict[i] == y[i])
 			correct_count++;
 	}
-	cout << "Correct rate:" << float(correct_count) / float(x.N()) << " on " <<processor_name<<endl;
+	cout << "Correct rate:" << double(correct_count) / double(x.N()) << " on " <<processor_name<<endl;
 
 	ParamServer::Command command;
 	command.set_type(ParamServer::Command_Type::Command_Type_TEST_COMPLETE);
@@ -152,13 +152,16 @@ vector<int> Worker::TakeMinibatch(int batch_size)
 
 	vector<int> ret(batch_size);
 	for (int i = 0; i < batch_size; i++)
+	{
 		ret[i] = seq[i];
-
+		cout << ret[i] << " ";
+	}
+	cout << endl;
 	return ret;
 
 }
 
-unordered_map<int, float> Worker::RequestAllParams()
+unordered_map<int, double> Worker::RequestAllParams()
 {
 	vector<vector<int>> feature_requests(server_count);
 	int request_sum = 0;
@@ -174,7 +177,7 @@ unordered_map<int, float> Worker::RequestAllParams()
 
 }
 
-unordered_map<int, float> Worker::RequestParams(vector<int> minibatch_index)
+unordered_map<int, double> Worker::RequestParams(vector<int> minibatch_index)
 {
 	vector<vector<int>> feature_requests(server_count);
 	int request_sum = 0;
@@ -205,7 +208,7 @@ unordered_map<int, float> Worker::RequestParams(vector<int> minibatch_index)
 	return param_map;
 }
 
-unordered_map<int, float> Worker::ProposeRequestToServers(vector<vector<int>> feature_requests, int request_sum)
+unordered_map<int, double> Worker::ProposeRequestToServers(vector<vector<int>> feature_requests, int request_sum)
 {
 	for (int server_num = 0; server_num < server_count; server_num++)
 	{
@@ -223,7 +226,7 @@ unordered_map<int, float> Worker::ProposeRequestToServers(vector<vector<int>> fe
 
 
 	int received_params = 0;
-	unordered_map<int, float> param_map;
+	unordered_map<int, double> param_map;
 	while (received_params < request_sum)
 	{
 		char buf[MAX_LENGTH];
@@ -239,6 +242,8 @@ unordered_map<int, float> Worker::ProposeRequestToServers(vector<vector<int>> fe
 			for (auto entry : param_response.param_map())
 			{
 				param_map[entry.first] = entry.second;
+
+				cout << entry.first << " " << entry.second << " = param "<<endl;
 			}
 			received_params += param_response.param_map_size();
 		}
@@ -249,12 +254,14 @@ unordered_map<int, float> Worker::ProposeRequestToServers(vector<vector<int>> fe
 	return param_map;
 }
 
-void Worker::SendGradientMap(unordered_map<int, float> gradient_map)
+void Worker::SendGradientMap(unordered_map<int, double> gradient_map)
 {
-	vector<unordered_map<int, float>> gradient_maps(server_count);
+	vector<unordered_map<int, double>> gradient_maps(server_count);
 
 	for (auto entry : gradient_map)
 	{
+		cout << entry.first << " " << entry.second << endl;
+
 		int server_num = FindWhichServer(entry.first);
 		gradient_maps[server_num][entry.first] = entry.second;
 	}
@@ -264,7 +271,7 @@ void Worker::SendGradientMap(unordered_map<int, float> gradient_map)
 		if (gradient_maps[server_i].empty())
 			continue;
 
-		unordered_map<int, float> now_map = gradient_maps[server_i];
+		unordered_map<int, double> now_map = gradient_maps[server_i];
 
 		ParamServer::GradientRequest gradient_req;
 		auto &send_gradient_map = *gradient_req.mutable_gradient_map();

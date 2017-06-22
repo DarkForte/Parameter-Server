@@ -18,27 +18,27 @@ void Matrix::print()
 	}
 }
 
-pair<float, unordered_map<int, float>> Matrix::CalcLossAndScores(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int bias_id)
+pair<double, unordered_map<int, double>> Matrix::CalcLossAndScores(unordered_map<int, double> param_map, vector<int> batch_index, vector<int> y, int bias_id)
 {
 	int n = batch_index.size();
-	unordered_map<int, float> scores;
+	unordered_map<int, double> scores;
 
-	float loss = 0;
+	double loss = 0;
 
 	for (int i : batch_index)
 	{
-		float sum = 0;
+		double sum = 0;
 		for (auto entry : data[i])
 		{
 			int pos = entry.first;
-			float value = entry.second;
+			double value = entry.second;
 
 			sum += param_map[pos] * value;
 		}
 		//bias
 		sum += param_map[bias_id];
 
-		float score = 1 / (1 + exp(-sum));
+		double score = 1 / (1 + exp(-sum));
 		scores[i] = score;
 		if (y[i] == 1)
 		{
@@ -54,19 +54,19 @@ pair<float, unordered_map<int, float>> Matrix::CalcLossAndScores(unordered_map<i
 }
 
 
-pair<float,unordered_map<int, float>> Matrix::CalcLossAndGradient(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int bias_id)
+pair<double,unordered_map<int, double>> Matrix::CalcLossAndGradient(unordered_map<int, double> param_map, vector<int> batch_index, vector<int> y, int bias_id)
 {
-	unordered_map<int, float> ret;
+	unordered_map<int, double> ret;
 
 	int n = batch_index.size();
 
 	auto loss_and_scores = CalcLossAndScores(param_map, batch_index, y, bias_id);
-	float loss = loss_and_scores.first;
+	double loss = loss_and_scores.first;
 	auto scores = loss_and_scores.second;
 
 	for (int i : batch_index)
 	{
-		float d_sum = scores[i] - y[i];
+		double d_sum = scores[i] - y[i];
 
 		/*for (int j = 0; j < feature_num; j++)
 		{

@@ -11,18 +11,18 @@ using std::make_pair;
 class Matrix
 {
 protected:
-	vector<map<int, float>> data;
+	vector<map<int, double>> data;
 
 
 public:
 	Matrix() {}
 
-	float Get(int x, int y)
+	double Get(int x, int y)
 	{
 		return data[x][y];
 	}
 
-	void AddData(map<int, float> line)
+	void AddData(map<int, double> line)
 	{
 		data.push_back(line);
 	}
@@ -38,8 +38,8 @@ public:
 	void print();
 	int N() { return data.size(); }
 
-	pair<float, unordered_map<int, float>> CalcLossAndGradient(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int bias_id);
-	pair<float, unordered_map<int, float>> CalcLossAndScores(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int bias_id);
+	pair<double, unordered_map<int, double>> CalcLossAndGradient(unordered_map<int, double> param_map, vector<int> batch_index, vector<int> y, int bias_id);
+	pair<double, unordered_map<int, double>> CalcLossAndScores(unordered_map<int, double> param_map, vector<int> batch_index, vector<int> y, int bias_id);
 
 
 

@@ -31,10 +31,10 @@ public:
 	void WaitTestCommand();
 
 protected:
-	unordered_map<int, float> RequestParams(vector<int> minibatch_index);
-	void SendGradientMap(unordered_map<int, float> gradient_map);
+	unordered_map<int, double> RequestParams(vector<int> minibatch_index);
+	void SendGradientMap(unordered_map<int, double> gradient_map);
 	int FindWhichServer(int feature_num);
 	vector<int> TakeMinibatch(int batch_size);
-	unordered_map<int, float> RequestAllParams();
-	unordered_map<int, float> ProposeRequestToServers(vector<vector<int>> feature_requests, int request_sum);
+	unordered_map<int, double> RequestAllParams();
+	unordered_map<int, double> ProposeRequestToServers(vector<vector<int>> feature_requests, int request_sum);
 };

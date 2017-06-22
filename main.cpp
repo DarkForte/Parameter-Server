@@ -29,6 +29,9 @@ int main(int argc, char** argv)
 	float learning_rate = atof(argv[6]);
 	int iter_num = atoi(argv[7]);
 	int batch_size = atoi(argv[8]);
+	int seed = atoi(argv[9]);
+
+	srand(seed);
 
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
