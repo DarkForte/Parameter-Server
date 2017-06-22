@@ -24,3 +24,4 @@ public:
 
 void MPISendLite(Message &msg, int target, MessageType type);
 MPIMsgDescriptor MPIRecvLite(char *buf, int type, int source);
+string GetProcessorName();

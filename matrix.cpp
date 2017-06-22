@@ -42,21 +42,19 @@ pair<float, unordered_map<int, float>> Matrix::CalcLossAndScores(unordered_map<i
 		scores[i] = score;
 		if (y[i] == 1)
 		{
-			loss += -log(score);
+			loss += -log(score + 1e-6);
 		}
 		else
 		{
-			loss += -log(1 - score);
+			loss += -log(1 - score + 1e-6);
 		}
 	}
-
-	loss /= n;
 
 	return make_pair(loss, scores);
 }
 
 
-unordered_map<int, float> Matrix::CalcGradient(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int bias_id)
+pair<float,unordered_map<int, float>> Matrix::CalcLossAndGradient(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int bias_id)
 {
 	unordered_map<int, float> ret;
 
@@ -65,8 +63,6 @@ unordered_map<int, float> Matrix::CalcGradient(unordered_map<int, float> param_m
 	auto loss_and_scores = CalcLossAndScores(param_map, batch_index, y, bias_id);
 	float loss = loss_and_scores.first;
 	auto scores = loss_and_scores.second;
-
-	cout << "loss: " << loss << endl;
 
 	for (int i : batch_index)
 	{
@@ -87,5 +83,5 @@ unordered_map<int, float> Matrix::CalcGradient(unordered_map<int, float> param_m
 		ret[bias_id] += d_sum / n;
 	}
 
-	return ret;
+	return make_pair(loss, ret);
 }

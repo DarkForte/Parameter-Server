@@ -21,9 +21,10 @@ protected:
 	vector<int> y;
 	int feature_num;
 	int server_count;
+	string processor_name;
 
 public:
-	Worker(int server_count);
+	Worker(int server_count, string processor_name);
 	void LoadFile(string path, string data_name);
 	void Train(int batch_size, int iter_num);
 	void Test();

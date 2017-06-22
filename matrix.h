@@ -38,7 +38,7 @@ public:
 	void print();
 	int N() { return data.size(); }
 
-	unordered_map<int, float> CalcGradient(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int bias_id);
+	pair<float, unordered_map<int, float>> CalcLossAndGradient(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int bias_id);
 	pair<float, unordered_map<int, float>> CalcLossAndScores(unordered_map<int, float> param_map, vector<int> batch_index, vector<int> y, int bias_id);
 
 

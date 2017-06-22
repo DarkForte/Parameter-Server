@@ -2,34 +2,36 @@
 #include "message_type.h"
 #include <fstream>
 
-Server::Server(int server_id, int total_servers, string filepath, string filename, float learning_rate)
+Server::Server(int server_id, int total_servers, string filepath, string filename, float learning_rate, string processor_name)
 {
 	this->server_id = server_id;
 	this->total_servers = total_servers;
 	this->filepath = filepath;
 	this->filename = filename;
 	this->learning_rate = learning_rate;
+	this->processor_name = processor_name;
 }
 
 void Server::Run()
 {
-	cout << "Server running" << endl;
+	cout << "Server " << server_id <<" running on "<< processor_name << endl;
 
 	std::ifstream fin(filepath + filename + ".meta");
 	fin >> total_params;
 
 	int param_with_bias = total_params + 1;
 
-	int param_num = (param_with_bias - server_id - 1) / total_servers + 1;
+	int param_num = (param_with_bias-1) / total_servers + 1;
 
 	cout << "Total params: " << total_params << endl;
+	cout << "Param num on " << server_id << " = " << param_num << endl;
 
 	params.resize(param_num);
 	for (int i = 0; i < params.size(); i++)
 		params[i] = float(rand()) / RAND_MAX * 2 - 1;
 	
 	
-	params[0] = 0.2;
+	/*params[0] = 0.2;
 	params[1] = 0.2;
 	params[2] = -24;
 	
@@ -116,5 +118,5 @@ void Server::HandleGradientRequest(ParamServer::GradientRequest req, int source)
 
 int Server::ToLocalFeatureID(int global_feature_id)
 {
-	return (global_feature_id - server_id) / total_servers;
+	return global_feature_id / total_servers;
 }

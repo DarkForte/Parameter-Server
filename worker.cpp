@@ -4,14 +4,15 @@
 #include <cmath>
 using std::swap;
 
-Worker::Worker(int server_count)
+Worker::Worker(int server_count, string processor_name)
 {
 	this->server_count = server_count;
+	this->processor_name = processor_name;
 }
 
 void Worker::LoadFile(string path, string file_name)
 {
-	cout << "Reading file: " << file_name << endl;
+	cout << "Reading file: " << file_name << " on "<<processor_name<<endl;
 	using namespace std;
 
 	ifstream fin;
@@ -51,7 +52,7 @@ void Worker::LoadFile(string path, string file_name)
 		line++;
 	}
 
-	cout << "Read complete" << endl;
+	cout << "Read complete on "<< processor_name << endl;
 
 	return;
 }
@@ -62,10 +63,14 @@ void Worker::Train(int batch_size, int iter_num)
 	{
 		vector<int> minibatch_index = TakeMinibatch(batch_size);
 		unordered_map<int, float> param_map = RequestParams(minibatch_index);
-		unordered_map<int, float> gradient_map = x.CalcGradient(param_map, minibatch_index, y, feature_num);
+		auto loss_gradient = x.CalcLossAndGradient(param_map, minibatch_index, y, feature_num);
+		unordered_map<int, float> gradient_map = loss_gradient.second;
+		float loss = loss_gradient.first;
 
-		for (auto entry : gradient_map)
-			cout << entry.first << " " << entry.second << endl;
+		if ((i-1) % 100 == 0)
+		{
+			cout << "Iter " << i << " : loss = "<<loss << " on "<<processor_name<< endl;
+		}
 
 		SendGradientMap(gradient_map);
 	}
@@ -96,7 +101,7 @@ void Worker::WaitTestCommand()
 
 void Worker::Test()
 {
-	cout << "Worker testing" << endl;
+	cout << "Worker testing on " << processor_name<< endl;
 	int n = x.N();
 
 	vector<int> index(n);
@@ -123,7 +128,7 @@ void Worker::Test()
 		if (predict[i] == y[i])
 			correct_count++;
 	}
-	cout << "Correct ratio:" << float(correct_count) / float(x.N()) << endl;
+	cout << "Correct rate:" << float(correct_count) / float(x.N()) << " on " <<processor_name<<endl;
 
 	ParamServer::Command command;
 	command.set_type(ParamServer::Command_Type::Command_Type_TEST_COMPLETE);
@@ -164,7 +169,7 @@ unordered_map<int, float> Worker::RequestAllParams()
 	}
 
 	request_sum = feature_num + 1;
-	cout << "AllParams request complete, sum= " << request_sum << endl;
+	//cout << "AllParams request complete, sum=" << request_sum << endl;
 	return ProposeRequestToServers(feature_requests, request_sum);
 
 }
@@ -193,7 +198,7 @@ unordered_map<int, float> Worker::RequestParams(vector<int> minibatch_index)
 	feature_requests[FindWhichServer(feature_num)].push_back(feature_num);
 	request_sum++;
 
-	cout << "Request sum:" << request_sum << endl;
+	//cout << "Request sum:" << request_sum << endl;
 
 	auto param_map = ProposeRequestToServers(feature_requests, request_sum);
 
@@ -238,7 +243,7 @@ unordered_map<int, float> Worker::ProposeRequestToServers(vector<vector<int>> fe
 			received_params += param_response.param_map_size();
 		}
 
-		cout << "Receive Params: " << received_params << endl;
+		//cout << "Receive Params: " << received_params << endl;
 	}
 
 	return param_map;
