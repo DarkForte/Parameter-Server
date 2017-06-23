@@ -28,13 +28,15 @@ void Server::Run()
 
 	params.resize(param_num);
 	for (int i = 0; i < params.size(); i++)
+	{
 		params[i] = double(rand()) / RAND_MAX * 2 - 1;
-	
+		//cout << params[i] << endl;
+	}	//params[i] = 0;
 	
 	/*params[0] = 0.2;
 	params[1] = 0.2;
 	params[2] = -24;
-	
+	*/
 
 	/*if (server_id == 0)
 	{

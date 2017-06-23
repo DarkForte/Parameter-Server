@@ -31,8 +31,6 @@ int main(int argc, char** argv)
 	int batch_size = atoi(argv[8]);
 	int seed = atoi(argv[9]);
 
-	srand(seed);
-
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
 	// Initialize the MPI environment
@@ -44,6 +42,8 @@ int main(int argc, char** argv)
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
 	string processor_name = GetProcessorName();
+
+	srand(seed + world_rank);
 
 	if (world_rank == 0)
 	{

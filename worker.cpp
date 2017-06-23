@@ -69,7 +69,7 @@ void Worker::Train(int batch_size, int iter_num)
 
 		if ((i-1) % 100 == 0)
 		{
-			cout << "Iter " << i << " : loss = "<<loss << " on "<<processor_name<< endl;
+			cout << "Iter " << i-1 << " : loss = "<<loss << " on "<<processor_name<< endl;
 		}
 
 		SendGradientMap(gradient_map);
@@ -151,12 +151,11 @@ vector<int> Worker::TakeMinibatch(int batch_size)
 	}
 
 	vector<int> ret(batch_size);
+
 	for (int i = 0; i < batch_size; i++)
 	{
 		ret[i] = seq[i];
-		cout << ret[i] << " ";
 	}
-	cout << endl;
 	return ret;
 
 }
@@ -243,7 +242,7 @@ unordered_map<int, double> Worker::ProposeRequestToServers(vector<vector<int>> f
 			{
 				param_map[entry.first] = entry.second;
 
-				cout << entry.first << " " << entry.second << " = param "<<endl;
+				//cout << entry.first << " " << entry.second << " = param "<<endl;
 			}
 			received_params += param_response.param_map_size();
 		}
@@ -260,7 +259,7 @@ void Worker::SendGradientMap(unordered_map<int, double> gradient_map)
 
 	for (auto entry : gradient_map)
 	{
-		cout << entry.first << " " << entry.second << endl;
+		//cout << entry.first << " " << entry.second << endl;
 
 		int server_num = FindWhichServer(entry.first);
 		gradient_maps[server_num][entry.first] = entry.second;
