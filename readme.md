@@ -1,18 +1,19 @@
-#Simple parameter server on c++
+# Simple parameter server based on c++
 
-##Prerequisites:
+## Prerequisites:
 * cmake
 * Protobuf 3.0+
 * MPICH 2
 
-##Building & run:
+## Building & running:
+
 ```shell
 cmake .
 make
 python run.py [parameters]
 ```
 
-##Parameters:
+## Parameters:
 Required:
 * `--server [server_num]` : number of servers
 * `--worker [worker_num]` : number of workers
@@ -26,5 +27,5 @@ Optional:
 * `--batch_size`:default = 64.
 * `--seed`:random seed.
 
-##File format
+## File format
 Please use libsvm format for both training and test data, and put them in the same folder. Also, for current version, please create a `train_file_name.meta` and `test_file_name.meta` to specify the total feature number for each file.
